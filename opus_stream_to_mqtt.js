@@ -72,17 +72,21 @@ function tryParseAndLog(jsonStr) {
       return true;
     }
 
-    const id = obj.deviceId || obj.id || '?';
-    const friendly = obj.friendlyId || obj.friendlyId || null;
+    const id = obj.deviceId || obj.id || null;
+    const friendly = obj.friendlyId || null;
     const direction = obj.direction || null;
     const summary = extractSummary(obj);
 
-    const idStr = friendly ? `${friendly} (${id})` : id;
-    const dirStr = direction ? ` [${direction}]` : '';
-    const sumStr = summary ? ` | ${summary}` : '';
     const uptime = Math.floor((Date.now() - startupTime) / 1000);
 
-    log('info', `Processed ${messageCount} messages. Uptime: ${uptime}s | ${idStr}${dirStr}${sumStr}`);
+    // Only log device events that carry a meaningful live value (skip static device info sub-objects)
+    if (summary && id) {
+      const idStr = friendly ? `${friendly} (${id})` : id;
+      const dirStr = direction ? ` [${direction}]` : '';
+      log('info', `Processed ${messageCount} messages. Uptime: ${uptime}s | ${idStr}${dirStr} | ${summary}`);
+    } else {
+      log('info', `Processed ${messageCount} messages. Uptime: ${uptime}s`);
+    }
     return true;
   } catch (e) {
     return false; // incomplete JSON — keep buffering
