@@ -45,6 +45,7 @@ function extractSummary(obj) {
       : (channelEntry ? channelEntry.value : undefined);
 
     if (primary) {
+      if (primary.value === 'invalid') return null; // transient OPUS gateway state, skip
       const chStr = channel !== undefined ? ` ch=${channel}` : '';
       return `${primary.key}=${primary.value}${chStr}`;
     }
