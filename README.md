@@ -1,6 +1,10 @@
-# OPUS Stream to MQTT Bridge
+# OPUS SmartHome Stream to MQTT Bridge
 
-This simple Node.js service connects to an OPUS Gateway device stream API and publishes all received audio/playback events directly to an MQTT broker.
+This simple Node.js service connects to an **OPUS SmartHome Gateway** device stream API and publishes all received events directly to an MQTT broker.
+
+The OPUS Gateway (by JÄGER DIREKT) is a central hub for smart building components that communicate via the wireless, battery-free **EnOcean protocol**. This includes devices like OPUS greenNet light switches, roller blind actuators, and sensors. 
+
+While the gateway natively supports complex integrations like Apple HomeKit, it lacks a simple, direct mechanism to push raw EnOcean telegrams and device state changes to an MQTT broker. This bridge script solves that by tapping into the gateway's undocumented HTTP stream API and converting those EnOcean/OPUS events into standard MQTT messages, making them easily consumable by Home Assistant, Node-RED, or other smart home platforms.
 
 ## How it works
 
