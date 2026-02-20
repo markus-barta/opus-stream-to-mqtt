@@ -88,11 +88,12 @@ function processComplete(jsonStr) {
     return;
   }
 
-  // Live telegram / device event
-  const id = obj.deviceId || null;
-  const friendly = obj.friendlyId || null;
-  const direction = obj.direction || null;
-  const summary = extractSummary(obj);
+  // Live telegram / device event — data is nested under obj.telegram
+  const telegram = obj.telegram || obj;
+  const id = telegram.deviceId || null;
+  const friendly = telegram.friendlyId || null;
+  const direction = telegram.direction || null;
+  const summary = extractSummary(telegram);
 
   if (id) {
     const idStr = friendly ? `${friendly} (${id})` : id;
