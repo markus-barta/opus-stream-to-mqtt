@@ -2,14 +2,24 @@ require('dotenv').config();
 const fetch = require('node-fetch');
 const mqtt = require('mqtt');
 
+// Never log credentials: strip user:pass@ from URLs and mask known secret values.
+const SECRET_VALUES = [process.env.STREAM_PASS, process.env.MQTT_PASS].filter(v => v && v.length >= 3);
+function redact(text) {
+  let out = String(text).replace(/(\/\/)[^\/\s@]+:[^\/\s@]+@/g, '$1***:***@');
+  for (const v of SECRET_VALUES) out = out.split(v).join('***');
+  return out;
+}
+
 function log(level, message) {
   const timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] ${level.toUpperCase()}: ${message}`);
+  console.log(`[${timestamp}] ${level.toUpperCase()}: ${redact(message)}`);
 }
 
 const streamRestartTimeoutSec = 3;
 const streamErrorRestartTimeoutSec = 10;
-const streamUrl = `http://${process.env.STREAM_USER}:${process.env.STREAM_PASS}@${process.env.STREAM_IP}:${process.env.STREAM_PORT}/devices/stream?direction=both`;
+// Credentials go in the Authorization header, not in the URL (URLs end up in error messages).
+const streamUrl = `http://${process.env.STREAM_IP}:${process.env.STREAM_PORT}/devices/stream?direction=both`;
+const streamAuth = 'Basic ' + Buffer.from(`${process.env.STREAM_USER}:${process.env.STREAM_PASS}`).toString('base64');
 const mqttBroker = process.env.MQTT_BROKER;
 const mqttOptions = {
   username: process.env.MQTT_USER,
@@ -188,7 +198,8 @@ function initializeStream() {
   fetch(streamUrl, {
     method: 'GET',
     headers: {
-      'Accept-Encoding': 'identity'
+      'Accept-Encoding': 'identity',
+      'Authorization': streamAuth
     }
   })
   .then(response => {
