@@ -2,13 +2,9 @@ require('dotenv').config();
 const fetch = require('node-fetch');
 const mqtt = require('mqtt');
 
-// Never log credentials: strip user:pass@ from URLs and mask known secret values.
-const SECRET_VALUES = [process.env.STREAM_PASS, process.env.MQTT_PASS].filter(v => v && v.length >= 3);
-function redact(text) {
-  let out = String(text).replace(/(\/\/)[^\/\s@]+:[^\/\s@]+@/g, '$1***:***@');
-  for (const v of SECRET_VALUES) out = out.split(v).join('***');
-  return out;
-}
+// Never log credentials: URL userinfo and known secret values are masked (redact.js).
+const { makeRedactor } = require('./redact');
+const redact = makeRedactor([process.env.STREAM_PASS, process.env.MQTT_PASS]);
 
 function log(level, message) {
   const timestamp = new Date().toISOString();
