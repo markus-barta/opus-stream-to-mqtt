@@ -7,6 +7,7 @@
     "dotenv": "^16.0.3"
   },
   "scripts": {
-    "start": "node opus_stream_to_mqtt.js"
+    "start": "node opus_stream_to_mqtt.js",
+    "test": "node --test test/"
   }
 }
